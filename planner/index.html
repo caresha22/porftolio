@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner — Stay Calm, Stay Ahead</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Plan<span>ner</span></div>
+      <div class="logo-sub">Stay calm. Stay ahead.</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Navigate</div>
+      <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" data-page="assignments">
+        <span class="nav-icon">📝</span> Assignments
+        <span class="nav-badge" id="pendingBadge">0</span>
+      </button>
+      <button class="nav-item" data-page="courses">
+        <span class="nav-icon">📚</span> Courses
+      </button>
+      <button class="nav-item" data-page="pomodoro">
+        <span class="nav-icon">🍅</span> Focus Timer
+      </button>
+      <button class="nav-item" data-page="wellness">
+        <span class="nav-icon">🌿</span> Wellness
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="stress-widget">
+        <div class="stress-label">WORKLOAD LEVEL</div>
+        <div class="stress-bar-track">
+          <div class="stress-bar-fill" id="stressBarFill" style="width:0%"></div>
+        </div>
+        <div class="stress-desc" id="stressDesc">Loading...</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Good morning, <em>Scholar</em> ✦</div>
+      <div class="topbar-actions">
+        <span class="topbar-date" id="topbarDate"></span>
+        <button class="btn btn-sage btn-sm" onclick="openModal('assignmentModal')">+ Add Assignment</button>
+      </div>
+    </div>
+
+    <!-- ─── DASHBOARD ─── -->
+    <div class="page active" id="page-dashboard">
+      <div class="greeting">
+        <div class="greeting-hello" id="greetingHello">Good morning, <em>Scholar</em> ✦</div>
+        <div class="greeting-sub" id="greetingSub">Here's your academic overview for today.</div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="card stat-card">
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-label">Total Tasks</div>
+          <div class="stat-trend" id="stat-total-trend" style="color:var(--ink4)"></div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num" style="color:var(--rust)" id="stat-due">0</div>
+          <div class="stat-label">Due This Week</div>
+          <div class="stat-trend" style="color:var(--rust)" id="stat-due-sub"></div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num" style="color:var(--sage)" id="stat-done">0</div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-trend" style="color:var(--sage)" id="stat-done-pct"></div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num" style="color:var(--sky)" id="stat-courses">0</div>
+          <div class="stat-label">Courses</div>
+          <div class="stat-trend" style="color:var(--ink4)" id="stat-courses-sub"></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="card-title">Upcoming Deadlines</div>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('assignments')">View all</button>
+          </div>
+          <div id="upcomingList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px">This Week</div>
+          <div class="week-grid" id="weekGrid"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card wellness-card">
+          <div class="card-sub" style="margin-bottom:8px">✦ DAILY REMINDER</div>
+          <div class="wellness-quote" id="dashQuote"></div>
+          <div class="wellness-author" id="dashQuoteAuthor"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">Course Progress</div>
+          <div id="courseProgressList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ASSIGNMENTS ─── -->
+    <div class="page" id="page-assignments">
+      <div class="page-header">
+        <div>
+          <div class="page-title">My <em>Assignments</em></div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);margin-top:4px" id="assignCount">0 assignments</div>
+        </div>
+        <button class="btn btn-sage" onclick="openModal('assignmentModal')">+ Add Assignment</button>
+      </div>
+
+      <div id="overdueBanner" style="display:none">
+        <div class="overdue-banner">⚠️ You have overdue assignments that need your attention.</div>
+      </div>
+
+      <div class="filter-bar">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4);margin-right:4px">FILTER:</span>
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="pending">Pending</button>
+        <button class="filter-chip" data-filter="completed">Completed</button>
+        <button class="filter-chip" data-filter="overdue">Overdue</button>
+        <button class="filter-chip" data-filter="high">High Priority</button>
+        <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4)">SORT:</span>
+        <select class="select" id="sortSelect" style="width:auto;padding:5px 12px;font-size:11px">
+          <option value="due">Due Date</option>
+          <option value="priority">Priority</option>
+          <option value="course">Course</option>
+          <option value="added">Date Added</option>
+        </select>
+      </div>
+
+      <div id="assignmentsList"></div>
+    </div>
+
+    <!-- ─── COURSES ─── -->
+    <div class="page" id="page-courses">
+      <div class="page-header">
+        <div class="page-title">My <em>Courses</em></div>
+        <button class="btn btn-sage" onclick="openModal('courseModal')">+ Add Course</button>
+      </div>
+      <div class="grid-3" id="coursesList"></div>
+    </div>
+
+    <!-- ─── POMODORO ─── -->
+    <div class="page" id="page-pomodoro">
+      <div class="page-header" style="margin-bottom:0">
+        <div>
+          <div class="page-title">Focus <em>Timer</em></div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);margin-top:4px">Work in focused intervals. Rest. Repeat.</div>
+        </div>
+      </div>
+
+      <div class="pomodoro-center">
+        <div class="pomodoro-tabs">
+          <button class="pomo-tab active" data-mode="work" data-duration="25">🧠 Focus (25m)</button>
+          <button class="pomo-tab" data-mode="short" data-duration="5">☕ Short Break (5m)</button>
+          <button class="pomo-tab" data-mode="long" data-duration="15">🌿 Long Break (15m)</button>
+        </div>
+
+        <div class="pomo-timer-ring">
+          <div class="ring-wrap">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="96" fill="none" stroke="var(--border)" stroke-width="6"/>
+              <circle cx="110" cy="110" r="96" fill="none" stroke="var(--sage)" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="603" stroke-dashoffset="0"
+                id="timerRing" style="transition:stroke-dashoffset .5s linear,stroke .5s"/>
+            </svg>
+            <div class="ring-center">
+              <div class="pomo-time" id="timerDisplay">25:00</div>
+              <div class="pomo-label" id="timerLabel">Ready to focus</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pomo-controls">
+          <button class="pomo-btn" onclick="resetTimer()" title="Reset">↺</button>
+          <button class="pomo-btn main" id="startStopBtn" onclick="toggleTimer()">▶</button>
+          <button class="pomo-btn" onclick="skipTimer()" title="Skip">⏭</button>
+        </div>
+
+        <div class="pomo-sessions">
+          <div class="pomo-session-dot" id="s0"></div>
+          <div class="pomo-session-dot" id="s1"></div>
+          <div class="pomo-session-dot" id="s2"></div>
+          <div class="pomo-session-dot" id="s3"></div>
+        </div>
+
+        <div class="pomo-task-box">
+          <div class="pomo-task-label">FOCUSING ON</div>
+          <select class="select pomo-task-select" id="pomoTaskSelect">
+            <option value="">— Select an assignment —</option>
+          </select>
+        </div>
+
+        <div style="margin-top:32px;display:flex;gap:24px;text-align:center">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--sage)" id="pomoDoneCount">0</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4)">Sessions Today</div>
+          </div>
+          <div style="width:1px;background:var(--border)"></div>
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--sky)" id="pomoMinutes">0</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4)">Minutes Focused</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── WELLNESS ─── -->
+    <div class="page" id="page-wellness">
+      <div class="page-header">
+        <div class="page-title">Well<em>ness</em></div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4)">Your mental health matters as much as your GPA.</div>
+      </div>
+
+      <div class="wellness-grid">
+        <div class="card">
+          <div class="card-title">How are you feeling today?</div>
+          <div class="card-sub" style="margin-bottom:12px">Check in with yourself.</div>
+          <div class="mood-options">
+            <button class="mood-btn" data-mood="😄" data-label="Great">😄 Great</button>
+            <button class="mood-btn" data-mood="🙂" data-label="Good">🙂 Good</button>
+            <button class="mood-btn" data-mood="😐" data-label="Okay">😐 Okay</button>
+            <button class="mood-btn" data-mood="😔" data-label="Low">😔 Low</button>
+            <button class="mood-btn" data-mood="😩" data-label="Stressed">😩 Stressed</button>
+          </div>
+          <div id="moodMessage" style="margin-top:16px;font-size:13px;color:var(--ink3);font-style:italic;display:none"></div>
+        </div>
+
+        <div class="card" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-label" style="margin-top:4px">🔥 Day Streak</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);margin-top:8px">Keep showing up every day</div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="checkInToday()">Check In Today</button>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card wellness-card">
+          <div class="card-sub" style="margin-bottom:8px">✦ QUOTE OF THE DAY</div>
+          <div class="quote-rotator" id="wellnessQuote"></div>
+          <div class="quote-author" id="wellnessAuthor"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="rotateQuote()">Next quote →</button>
+        </div>
+
+        <div class="card tip-card">
+          <div class="card-title" style="color:var(--gold)">✦ Stress-Reduction Tips</div>
+          <ul class="tips-list" id="tipsList"></ul>
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center;padding:32px">
+        <div class="card-title" style="font-size:20px;margin-bottom:8px">Box Breathing Exercise</div>
+        <div class="card-sub" style="margin-bottom:24px">4 seconds each phase. Reduces anxiety in minutes.</div>
+        <div id="breathCircle" class="breath-circle">START</div>
+        <div id="breathLabel" class="breath-label"></div>
+        <button class="btn btn-sage" id="breathBtn" onclick="toggleBreath()">Start Exercise</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Assignment Modal -->
+<div class="modal-overlay" id="assignmentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="assignModalTitle">Add Assignment</div>
+      <button class="modal-close" onclick="closeModal('assignmentModal')">✕</button>
+    </div>
+    <div class="modal-fields">
+      <input type="hidden" id="editAssignId">
+      <div class="field">
+        <label class="label">Assignment Title *</label>
+        <input class="input" id="assignTitle" placeholder="e.g. Essay on Romanticism">
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label">Course *</label>
+          <select class="select" id="assignCourse">
+            <option value="">Select course...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Type</label>
+          <select class="select" id="assignType">
+            <option value="Assignment">Assignment</option>
+            <option value="Essay">Essay</option>
+            <option value="Project">Project</option>
+            <option value="Exam">Exam</option>
+            <option value="Quiz">Quiz</option>
+            <option value="Lab">Lab</option>
+            <option value="Presentation">Presentation</option>
+            <option value="Reading">Reading</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label">Due Date *</label>
+          <input class="input" id="assignDue" type="date">
+        </div>
+        <div class="field">
+          <label class="label">Priority</label>
+          <select class="select" id="assignPriority">
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Notes (optional)</label>
+        <textarea class="textarea" id="assignNotes" placeholder="Any details, instructions, or reminders..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('assignmentModal')">Cancel</button>
+      <button class="btn btn-sage" onclick="saveAssignment()">Save Assignment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Course Modal -->
+<div class="modal-overlay" id="courseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="courseModalTitle">Add Course</div>
+      <button class="modal-close" onclick="closeModal('courseModal')">✕</button>
+    </div>
+    <div class="modal-fields">
+      <input type="hidden" id="editCourseId">
+      <div class="field">
+        <label class="label">Course Name *</label>
+        <input class="input" id="courseName" placeholder="e.g. Introduction to Psychology">
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="label">Course Code</label>
+          <input class="input" id="courseCode" placeholder="e.g. PSYC 101">
+        </div>
+        <div class="field">
+          <label class="label">Color</label>
+          <select class="select" id="courseColor">
+            <option value="sage">Sage Green</option>
+            <option value="rust">Terracotta</option>
+            <option value="sky">Sky Blue</option>
+            <option value="lav">Lavender</option>
+            <option value="gold">Gold</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Instructor</label>
+        <input class="input" id="courseInstructor" placeholder="Prof. Name">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('courseModal')">Cancel</button>
+      <button class="btn btn-sage" onclick="saveCourse()">Save Course</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
