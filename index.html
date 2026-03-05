@@ -6,6 +6,7 @@
 <title>Chinedu Igwealor — Seeking Internship 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/main.css">
+<script src="./js/portfolio.js"></script>
 </head>
 <body>
 
@@ -154,7 +155,7 @@
           <span class="tag">Python</span><span class="tag">CLI</span><span class="tag">Coursework</span>
         </div>
       </div>
-      <a href="./password-analyzer.html" class="proj-arrow">
+      <a href="./pages/password-analyzer.html" class="proj-arrow">
       <div class="proj-arrow">→</div>
       </a>
     </div>
@@ -241,38 +242,6 @@
   <span style="margin-left:auto;color:var(--border)">alexrivera.dev</span>
 </div>
 
-<script>
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx=0,my=0,rx=0,ry=0;
-  document.addEventListener('mousemove', e => {
-    mx=e.clientX; my=e.clientY;
-    cursor.style.transform=`translate(${mx-4}px,${my-4}px)`;
-  });
-  (function animRing(){
-    rx+=(mx-rx-16)*0.12; ry+=(my-ry-16)*0.12;
-    ring.style.transform=`translate(${rx}px,${ry}px)`;
-    requestAnimationFrame(animRing);
-  })();
-  document.querySelectorAll('a,.proj,.skill-card,.clink').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{ ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='var(--accent2)'; });
-    el.addEventListener('mouseleave',()=>{ ring.style.width='32px';ring.style.height='32px';ring.style.borderColor='var(--accent)'; });
-  });
 
-  const obs = new IntersectionObserver(entries=>{
-    entries.forEach((e,i)=>{
-      if(e.isIntersecting){
-        setTimeout(()=>{
-          e.target.classList.add('visible');
-          e.target.querySelectorAll('.bar-fill').forEach(b=>{ b.style.width=b.dataset.w+'%'; });
-        }, i*80);
-      }
-    });
-  },{threshold:0.12});
-  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-  function tick(){ document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-CA',{hour12:false}); }
-  tick(); setInterval(tick,1000);
-</script>
 </body>
 </html>
